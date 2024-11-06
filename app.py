@@ -8,29 +8,27 @@ import requests
 from io import BytesIO
 import os
 import gdown
+from azure.storage.blob import BlobServiceClient
+import os
+
 
 app = FastAPI()
 
-# URLs for the models on Google Drive
-shape_model_url = "https://drive.google.com/uc?id=1JnAi2DVwt0_XbVpRcpVN3pQgR_8xGHuK"
-gender_model_url = "https://drive.google.com/uc?id=1MWaJ6hcF9xWfW3zSkM3V9Mgxopq18R3z"
+BLOB_CONNECTION_STRING = 'DefaultEndpointsProtocol=https;AccountName=estilistimages;AccountKey=F3fyNe9iTvlj+ljIoCrWSJI7YzAU470cu5dnc4wcv5kAqjirvkSVeQBXe4IDH/NmucDG1D5e0rsR+AStIQ7u5A==;EndpointSuffix=core.windows.net'
+CONTAINER_NAME = 'models'
+BLOB_NAME = 'shape.h5'
+LOCAL_MODEL_PATH = 'estilist_backend/Models/shape.h5'
 
-# Local paths to save the models
-shape_model_path = "Models/shape.h5"
-gender_model_path = "Models/gender.h5"
+def download_model_from_blob():
+    if not os.path.exists(LOCAL_MODEL_PATH):
+        blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
+        blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=BLOB_NAME)
 
-
-def download_model_from_google_drive(url, local_path):
-    if not os.path.exists(local_path):
-        gdown.download(url, local_path, quiet=False)
-
-# Download models if they do not exist locally
-download_model_from_google_drive(shape_model_url, shape_model_path)
-download_model_from_google_drive(gender_model_url, gender_model_path)
-
-# Load the pre-trained models
-shape_model = load_model(shape_model_path)
-gender_model = load_model(gender_model_path)
+        with open(LOCAL_MODEL_PATH, "wb") as model_file:
+            model_file.write(blob_client.download_blob().readall())
+        
+download_model_from_blob()
+shape_model = load_model(LOCAL_MODEL_PATH)
 
 "Accepts an image file or URL and returns the predicted shape, gender, and skin tone palette"
 @app.post("/predict/")
@@ -55,11 +53,10 @@ async def predict(file: UploadFile = File(None), url: str = Form(None)):
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
         # Preprocess the image
-        preprocessed_shape_image, preprocessed_gender_image = Functions.preprocess(image)
+        preprocessed_shape_image = Functions.preprocess(image)
 
         # Make predictions using the loaded models
         shape_predictions = Functions.predict_shape(preprocessed_shape_image, shape_model)
-        gender_predictions = Functions.predict_gender(preprocessed_gender_image, gender_model)
 
         # Extract skin tone palette
         skin_tone_palette = Functions.extract_skin_tone(image)
@@ -67,7 +64,6 @@ async def predict(file: UploadFile = File(None), url: str = Form(None)):
         return JSONResponse(
             content={
                 "forma": shape_predictions[0],
-                "genero": gender_predictions[0],
                 "tono_piel": skin_tone_palette,
             }
         )

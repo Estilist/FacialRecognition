@@ -28,13 +28,7 @@ class Functions():
             normalized_face_shape = resized_face_shape / 255.0
             expanded_face_shape = np.expand_dims(normalized_face_shape, axis=0)
 
-            # Resize for gender model
-            resized_face_gender = cv2.resize(extracted_face, target_size_gender)
-            normalized_face_gender = resized_face_gender / 255.0
-            reshaped_face_gender = np.expand_dims(normalized_face_gender, axis=-1)
-            expanded_face_gender = np.expand_dims(reshaped_face_gender, axis=0)
-
-            return expanded_face_shape, expanded_face_gender
+            return expanded_face_shape
 
         return None
 
@@ -64,19 +58,6 @@ class Functions():
             # Oval
             predicted_class = 'Ovalada'
 
-        return predicted_class, predictions
-    
-    
-    "Gender Classification Function"
-    @staticmethod
-    def predict_gender(preprocessed_image, model):
-        # Make predictions using the loaded model
-        predictions = model.predict(preprocessed_image)
-
-        # Determine the predicted class based on the index
-        predicted_index = np.argmax(predictions)
-        predicted_class = 'Masculino' if predicted_index == 1 else 'Femenino'
-        
         return predicted_class, predictions
     
     "Skin Tone Extraction Function"

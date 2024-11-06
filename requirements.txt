@@ -8,3 +8,4 @@ tensorflow
 skin-tone-classifier
 gdown
 requests
+azure-storage-blob
