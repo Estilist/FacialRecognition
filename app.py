@@ -17,7 +17,7 @@ app = FastAPI()
 BLOB_CONNECTION_STRING = 'DefaultEndpointsProtocol=https;AccountName=estilistimages;AccountKey=F3fyNe9iTvlj+ljIoCrWSJI7YzAU470cu5dnc4wcv5kAqjirvkSVeQBXe4IDH/NmucDG1D5e0rsR+AStIQ7u5A==;EndpointSuffix=core.windows.net'
 CONTAINER_NAME = 'models'
 BLOB_NAME = 'shape.h5'
-LOCAL_MODEL_PATH = 'estilist_backend/Models/shape.h5'
+LOCAL_MODEL_PATH = 'Models/shape.h5'
 
 def download_model_from_blob():
     if not os.path.exists(LOCAL_MODEL_PATH):
