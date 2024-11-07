@@ -3,14 +3,11 @@ from fastapi.responses import JSONResponse
 import cv2 # opencv-python
 import numpy as np # numpy
 from keras.models import load_model # keras
-from Backend.functions import Functions
+from functions import Functions
 import requests
 from io import BytesIO
 import os
-import gdown
 from azure.storage.blob import BlobServiceClient
-import os
-
 
 app = FastAPI()
 
@@ -30,7 +27,7 @@ def download_model_from_blob():
 download_model_from_blob()
 shape_model = load_model(LOCAL_MODEL_PATH)
 
-"Accepts an image file or URL and returns the predicted shape, gender, and skin tone palette"
+"Accepts an image file or URL and returns the predicted shape and skin tone palette"
 @app.post("/predict/")
 async def predict(file: UploadFile = File(None), url: str = Form(None)):
     try:

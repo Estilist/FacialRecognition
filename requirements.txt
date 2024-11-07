@@ -3,9 +3,6 @@ uvicorn
 opencv-python
 numpy
 keras
-python-multipart
-tensorflow
 skin-tone-classifier
-gdown
 requests
 azure-storage-blob
